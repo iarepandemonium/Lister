@@ -1,0 +1,282 @@
+package com.iarekimberly.lister;
+
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import javax.swing.*;
+
+public class ListerGUI extends JFrame{
+	int number;
+	String word;
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5472541314486368786L;
+	
+	public ListerGUI(){
+
+	}
+	
+	Dimension textarea = new Dimension(190,200);
+	String text1 = "";
+	String text2 = "";
+	String result = "";
+	ArrayList<String> filetostring = new ArrayList<String>();
+	ArrayList<String> doublechecker = new ArrayList<String>();
+	
+	public void BuildGui(){
+		
+		JPanel basic = new JPanel();
+		basic.setLayout(new BoxLayout(basic, BoxLayout.Y_AXIS));
+		add(basic);
+		
+		JPanel topPanel = new JPanel(new BorderLayout(0,0));
+		topPanel.setBackground(Color.WHITE);
+		topPanel.setMaximumSize(new Dimension(450,0));
+		JLabel instruct = new JLabel("<html>Find Duplicates: Shows where a Duplicate Exists in a Single List, # in TF<br>Single R. Duplicates: Displays a single list with no repeats."
+				+ "						<br>Double R. Duplicates: Removes anything in second list from first list"
+				+ "						<br>Find Missing:  Finds anything in second list not in first list</html>");
+		instruct.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 0));
+		topPanel.add(instruct);
+
+        JSeparator separator = new JSeparator();
+        separator.setForeground(Color.GRAY);
+
+        topPanel.add(separator, BorderLayout.SOUTH);
+
+        basic.add(topPanel);
+        
+        JPanel data = new JPanel(new FlowLayout());
+        data.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+        final JTextPane text1 = new JTextPane();
+        text1.setContentType("text");
+        JScrollPane sp1 = TextAreaDefaults(text1);
+        data.add(sp1);
+        
+        
+        final JTextPane text2 = new JTextPane();
+        JScrollPane sp2 = TextAreaDefaults(text2);
+        data.add(sp2);
+        basic.add(data);
+        
+
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        final JTextPane pane = new JTextPane();
+        
+
+
+        JPanel boxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 3));
+        
+        ButtonGroup bg = new ButtonGroup();
+        JRadioButton box1 = new JRadioButton("Find Duplicates");
+        JRadioButton box2 = new JRadioButton("Single R. Duplicates");
+        JRadioButton box3 = new JRadioButton("Double R. Duplicates");
+        JRadioButton box4 = new JRadioButton("Find Missing");
+        final JTextField boxbox = new JTextField(10);
+        bg.add(box1);
+        bg.add(box2);
+        bg.add(box3);
+        
+        bg.add(box4);
+
+        boxPanel.add(box1);
+        boxPanel.add(box2);
+        boxPanel.add(box3);
+        
+        JPanel boxPanel2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 3));
+        boxPanel2.add(box4);
+        boxPanel2.add(Box.createHorizontalStrut(10));
+        boxPanel2.add(boxbox);
+        basic.add(boxPanel);
+        basic.add(boxPanel2);
+        
+
+
+
+
+        pane.setContentType("text");
+        pane.setEditable(false);
+        pane.setPreferredSize(new Dimension(40,50));
+        JScrollPane jscroll = new JScrollPane(pane,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        textPanel.add(jscroll);
+
+        basic.add(textPanel);
+        
+        box1.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setword(boxbox.getText());
+				pane.setText(removeDuplicates(text1.getText()));
+				filetostring.clear();
+				doublechecker.clear();
+				
+			}
+        	
+        });
+        
+        box2.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setword(boxbox.getText());
+				pane.setText(PrintListSingle(text1.getText()));
+				filetostring.clear();
+				doublechecker.clear();
+				
+			}
+        	
+        });
+        box3.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setword(boxbox.getText());
+				pane.setText(PrintListRMVDouble(text1.getText(), text2.getText()));
+				filetostring.clear();
+				doublechecker.clear();
+				
+			}
+        	
+        });
+        box4.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setword(boxbox.getText());
+				pane.setText(FindMissing(text1.getText(), text2.getText()));
+				filetostring.clear();
+				doublechecker.clear();
+				
+			}
+        	
+        });
+        
+
+        
+
+		setTitle("Lister: The Little Handy Tool That Sorts Lists");
+        setSize(new Dimension(450, 600));
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
+	}
+	
+	public JScrollPane TextAreaDefaults(JTextPane jtextarea){
+		jtextarea.setPreferredSize(textarea);
+		jtextarea.setBorder(BorderFactory.createLineBorder(Color.black));
+		return new JScrollPane(jtextarea,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	}
+
+	
+	@SuppressWarnings("resource")
+	public String removeDuplicates(String words1){
+		Scanner Grey = new Scanner(words1);
+		StringBuilder sb = new StringBuilder();
+		try{setnumber(Integer.parseInt(getword()));}
+        catch(NumberFormatException e){}
+		int anumber = getnumber();
+		while(Grey.hasNext()){
+			String i = Grey.next();
+			doublechecker.add(i);
+			if(!filetostring.contains(i)){
+				filetostring.add(i);
+			}
+			else{
+            	int count = 0;
+            	for(String x : doublechecker){
+            	if(x.equals(i)){
+            		count++;
+            	}
+            	}
+            	if(count > anumber){
+            		sb.append("Found: " + i + " x" + count + "\n");
+            	}
+            }
+		}
+		return sb.toString();
+	}
+
+	@SuppressWarnings("resource")
+	public String PrintListSingle(String words1){
+		Scanner Grey = new Scanner(words1);
+		StringBuilder sb = new StringBuilder();
+		while (Grey.hasNext()) {
+            String i = Grey.next();
+            if(!filetostring.contains(i) 
+            		){
+            	filetostring.add(i);
+            }
+	}
+		for(int i = 0; i < filetostring.size(); i++){
+			sb.append(filetostring.get(i) + "\n");
+		}
+		return sb.toString();
+		
+	
+}
+	@SuppressWarnings("resource")
+	public String PrintListRMVDouble(String words1, String words2){
+		Scanner Grey = new Scanner(words1);
+		Scanner Red = new Scanner(words2);
+		StringBuilder sb = new StringBuilder();
+		while (Grey.hasNext()) {
+            String i = Grey.next();
+            if(!filetostring.contains(i) 
+            		){
+            	filetostring.add(i);
+            }
+	}
+		while (Red.hasNext()) {
+            String i = Red.next();
+            filetostring.remove(i);
+      }
+		for(int i = 0; i < filetostring.size(); i++){
+			sb.append(filetostring.get(i) + "\n");
+		}
+		return sb.toString();
+	}
+	
+	@SuppressWarnings("resource")
+	public String FindMissing(String words1, String words2){
+		Scanner Grey = new Scanner(words1);
+		Scanner Red = new Scanner(words2);
+		StringBuilder sb = new StringBuilder();
+		while (Grey.hasNext()) {
+            String i = Grey.next();
+            if(!filetostring.contains(i) 
+            		){
+            	filetostring.add(i);
+            }
+	}
+		while (Red.hasNext()) {
+            String i = Red.next();
+            if(!filetostring.contains(i)){
+            	sb.append("Found: " + i +"\n");
+            	}
+      }
+		return sb.toString();
+	}
+	
+	
+	
+	public Integer getnumber(){
+		return this.number;
+	}
+	private String getword() {
+		return this.word;
+	}
+	private void setword(String word) {
+		this.word = word;
+	}
+	public void setnumber(Integer number){
+		this.number = number;
+	}
+}
